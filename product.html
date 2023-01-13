@@ -99,36 +99,6 @@
                                     刪除
                                 </button>
 
-                                <!-- Modal -->
-                                <div id="delProductModal" ref="delProductModal" class="modal fade" tabindex="-1"
-                                    aria-labelledby="delProductModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content border-0">
-                                            <div class="modal-header bg-danger text-white">
-                                                <h5 id="delProductModalLabel" class="modal-title">
-                                                    <span>刪除產品</span>
-                                                </h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                是否刪除
-                                                <strong class="text-danger">{{ tempProduct.title }}</strong>
-                                                商品(刪除後將無法恢復)。
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-secondary"
-                                                    data-bs-dismiss="modal">
-                                                    取消
-                                                </button>
-                                                <button type="button" class="btn btn-danger"
-                                                    @click="delProduct(tempProduct.id)">
-                                                    確認刪除
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </td>
                     </tr>
@@ -141,7 +111,8 @@
             <div class="modal-dialog w-80 mx-auto">
                 <div class="modal-content">
                     <div class="modal-header bg-dark text-white">
-                        <h5 class="modal-title" id="productModalLabel">新增產品</h5>
+                        <h5 v-if="isNew" class="modal-title" id="productModalLabel">新增產品</h5>
+                        <h5 v-else class="modal-title" id="productModalLabel">編輯產品</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -196,13 +167,13 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label for="origin_price" class="form-label">原價</label>
-                                        <input v-model="tempProduct.origin_price" type="number"
+                                        <input min="0" v-model="tempProduct.origin_price" type="number"
                                             class="form-control mb-2" placeholder="請輸入原價">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="price" class="form-label">售價</label>
-                                        <input v-model="tempProduct.price" type="number" class="form-control mb-2"
-                                            placeholder="請輸入售價">
+                                        <input min="0" v-model="tempProduct.price" type="number"
+                                            class="form-control mb-2" placeholder="請輸入售價">
                                     </div>
                                 </div>
                                 <hr>
@@ -230,9 +201,36 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                        <button v-if="" @click="UpateProduct" type="button" class="btn btn-primary">確認</button>
-                        <button v-else @click="editProduct" type="button" class="btn btn-primary">確認</button>
+                        <button @click="UpateProduct" type="button" class="btn btn-primary">確認</button>
+                        <!-- <button v-else @click="UpateProduct" type="button" class="btn btn-primary">確認</button> -->
 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- delModal -->
+        <div id="delProductModal" ref="delProductModal" class="modal fade" tabindex="-1"
+            aria-labelledby="delProductModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content border-0">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 id="delProductModalLabel" class="modal-title">
+                            <span>刪除產品</span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        是否刪除
+                        <strong class="text-danger">{{ tempProduct.title }}</strong>
+                        商品(刪除後將無法恢復)。
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            取消
+                        </button>
+                        <button type="button" class="btn btn-danger" @click="delProduct(tempProduct.id)">
+                            確認刪除
+                        </button>
                     </div>
                 </div>
             </div>
@@ -274,10 +272,6 @@
             };
         },
         methods: {
-            log() {
-                console.log(this.products[0].id);
-                console.log(this.products);
-            },
             checkAdmin() {
                 const url = `${this.apiUrl}/api/user/check`;
                 axios.post(url)
@@ -294,7 +288,7 @@
                 // }
             },
             getData() {
-                axios.get(`${this.apiUrl}/api/${this.apiPath}/products`)
+                axios.get(`${this.apiUrl}/api/${this.apiPath}/admin/products/all`)
                     .then((res) => {
                         console.log(res.data.products);
                         this.products = res.data.products
@@ -324,7 +318,9 @@
                 }
             },
             UpateProduct() {
+
                 if (this.isNew) {
+
                     axios.post(`${this.apiUrl}/api/${this.apiPath}/admin/product`, { data: this.tempProduct })
                         .then((res) => {
                             console.log(res);
@@ -339,6 +335,7 @@
                 } else {
                     axios.put(`${this.apiUrl}/api/${this.apiPath}/admin/product/${this.tempProduct.id}`, { data: this.tempProduct })
                         .then((res) => {
+
                             console.log(res);
                             this.getData()
                             productModal.hide()
@@ -355,8 +352,9 @@
                 axios.delete(`${this.apiUrl}/api/${this.apiPath}/admin/product/${id}`)
                     .then((res) => {
                         console.log(res);
-                        this.getData()
                         delProductModal.hide()
+                        this.getData()
+
                         swal({
                             title: "刪除成功",
                             icon: "success",
