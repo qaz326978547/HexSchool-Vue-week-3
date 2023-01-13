@@ -28,7 +28,9 @@
     }
 
     .modal-dialog {
-        max-width: 90% !important;
+        margin: 0 auto;
+        min-width: 300px;
+        max-width: 50% !important;
     }
 
     .imagesUrl {
@@ -125,8 +127,9 @@
                                     <img class="img-fluid" :src="tempProduct.imageUrl">
                                 </div>
                                 <h3 class="mb-3">多圖新增</h3>
+                                <button @click="log">log</button>
                                 <div>
-                                    <div v-if="tempProduct.imagesUrl.length">
+                                    <div v-if="Array.isArray(tempProduct.imagesUrl)">
                                         <div class="mb-3" v-for="(image, key) in tempProduct.imagesUrl" :key="key">
                                             <div>
                                                 <label for="imageUrl" class="form-label">新增圖片</label>
@@ -140,8 +143,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <button @click="tempProduct.imagesUrl.push('')"
-                                        class="btn btn-outline-primary btn-sm d-block w-100">
+                                    <button @click="createImages" class="btn btn-outline-primary btn-sm d-block w-100">
                                         新增圖片
                                     </button>
                                 </div>
@@ -272,6 +274,10 @@
             };
         },
         methods: {
+            log() {
+                console.log(this.isNew);
+                console.log(this.tempProduct);
+            },
             checkAdmin() {
                 const url = `${this.apiUrl}/api/user/check`;
                 axios.post(url)
@@ -298,8 +304,14 @@
                     })
             },
             createImages() {
-                this.tempProduct.imagesUrl = [];
-                this.tempProduct.imagesUrl.push('');
+                if (!this.tempProduct.imagesUrl) {
+                    this.tempProduct.imagesUrl = [];
+                    this.tempProduct.imagesUrl.push('');
+                } else {
+                    this.tempProduct.imagesUrl.push('');
+
+                }
+
             },
             openModal(isNew, item) {
                 if (isNew === 'new') {
@@ -324,26 +336,33 @@
                     axios.post(`${this.apiUrl}/api/${this.apiPath}/admin/product`, { data: this.tempProduct })
                         .then((res) => {
                             console.log(res);
-                            this.getData()
                             productModal.hide()
+                            this.getData()
+
                             swal({
                                 title: "新增成功",
                                 icon: "success",
                                 timer: 2000
                             });
                         })
+                        .catch((err) => {
+                            console.log(err);
+                        })
                 } else {
                     axios.put(`${this.apiUrl}/api/${this.apiPath}/admin/product/${this.tempProduct.id}`, { data: this.tempProduct })
                         .then((res) => {
-
                             console.log(res);
-                            this.getData()
                             productModal.hide()
+                            this.getData()
+
                             swal({
                                 title: "編輯成功",
                                 icon: "success",
                                 timer: 2000
                             });
+                        })
+                        .catch((err) => {
+                            console.log(err);
                         })
                 }
 
@@ -354,12 +373,14 @@
                         console.log(res);
                         delProductModal.hide()
                         this.getData()
-
                         swal({
                             title: "刪除成功",
                             icon: "success",
                             timer: 2000
                         });
+                    })
+                    .catch((err) => {
+                        console.log(err);
                     })
             },
 
