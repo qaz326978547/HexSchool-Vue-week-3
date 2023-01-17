@@ -296,7 +296,7 @@
                         this.products = res.data.products
                     })
                     .catch((err) => {
-                         alert(err.response.data.message);
+                          alert(err.data.message)
                     })
             },
             createImages() {
@@ -342,7 +342,7 @@
                             });
                         })
                         .catch((err) => {
-                             alert(err.response.data.message);
+                              alert(err.data.message)
                         })
                 } else {
                     axios.put(`${this.apiUrl}/api/${this.apiPath}/admin/product/${this.tempProduct.id}`, { data: this.tempProduct })
@@ -358,7 +358,7 @@
                             });
                         })
                         .catch((err) => {
-                             alert(err.response.data.message);
+                              alert(err.data.message)
                         })
                 }
 
@@ -376,7 +376,7 @@
                         });
                     })
                     .catch((err) => {
-                         alert(err.response.data.message);
+                          alert(err.data.message)
                     })
             },
 
